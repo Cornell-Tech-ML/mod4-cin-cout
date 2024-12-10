@@ -5,6 +5,19 @@ from typing import List, Tuple
 
 
 def make_pts(N: int) -> List[Tuple[float, float]]:
+    """Generates a list of N random points in the 2D plane.
+
+    Parameters
+    ----------
+    N : int
+        Number of points to generate.
+
+    Returns
+    -------
+    List[Tuple[float, float]]
+        List of points (x, y) where x and y are random floats.
+
+    """
     X = []
     for i in range(N):
         x_1 = random.random()
@@ -21,6 +34,19 @@ class Graph:
 
 
 def simple(N: int) -> Graph:
+    """Generates a simple linearly separable dataset.
+
+    Parameters
+    ----------
+    N : int
+        Number of points to generate.
+
+    Returns
+    -------
+    Graph
+        The dataset containing the points and their labels.
+
+    """
     X = make_pts(N)
     y = []
     for x_1, x_2 in X:
@@ -30,6 +56,19 @@ def simple(N: int) -> Graph:
 
 
 def diag(N: int) -> Graph:
+    """Generates a dataset where points are separated by a diagonal line.
+
+    Parameters
+    ----------
+    N : int
+        Number of points to generate.
+
+    Returns
+    -------
+    Graph
+        The dataset containing the points and their labels.
+
+    """
     X = make_pts(N)
     y = []
     for x_1, x_2 in X:
@@ -39,6 +78,19 @@ def diag(N: int) -> Graph:
 
 
 def split(N: int) -> Graph:
+    """Generates a dataset where points are separated by vertical regions.
+
+    Parameters
+    ----------
+    N : int
+        Number of points to generate.
+
+    Returns
+    -------
+    Graph
+        The dataset containing the points and their labels.
+
+    """
     X = make_pts(N)
     y = []
     for x_1, x_2 in X:
@@ -48,6 +100,19 @@ def split(N: int) -> Graph:
 
 
 def xor(N: int) -> Graph:
+    """Generates a dataset based on the XOR logic gate.
+
+    Parameters
+    ----------
+    N : int
+        Number of points to generate.
+
+    Returns
+    -------
+    Graph
+        The dataset containing the points and their labels.
+
+    """
     X = make_pts(N)
     y = []
     for x_1, x_2 in X:
@@ -57,6 +122,19 @@ def xor(N: int) -> Graph:
 
 
 def circle(N: int) -> Graph:
+    """Generates a dataset where points are separated by a circle boundary.
+
+    Parameters
+    ----------
+    N : int
+        Number of points to generate.
+
+    Returns
+    -------
+    Graph
+        The dataset containing the points and their labels.
+
+    """
     X = make_pts(N)
     y = []
     for x_1, x_2 in X:
@@ -67,6 +145,20 @@ def circle(N: int) -> Graph:
 
 
 def spiral(N: int) -> Graph:
+    """Generates a spiral dataset where points are arranged in spiral patterns.
+
+    Parameters
+    ----------
+    N : int
+        Number of points to generate.
+
+    Returns
+    -------
+    Graph
+        The dataset containing the points and their labels.
+
+    """
+
     def x(t: float) -> float:
         return t * math.cos(t) / 20.0
 

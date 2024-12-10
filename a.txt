@@ -1,0 +1,8 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.6, pytest-8.3.2, pluggy-1.5.0
+rootdir: /Users/kadelin/Desktop/Cornell/MLE/mod4-cin-cout
+configfile: pyproject.toml
+plugins: hypothesis-6.54.0, env-1.1.4
+collected 66 items / 62 deselected / 4 selected
+
+tests/test_conv.py 
