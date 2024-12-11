@@ -1,3 +1,7 @@
+from pathlib import Path
+import sys
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 from mnist import MNIST
 
 import minitorch
@@ -15,19 +19,30 @@ C = 10
 H, W = 28, 28
 
 
-def RParam(*shape):
+def RParam(*shape: int) -> minitorch.Parameter:
+    """Generate a random parameter tensor with given shape for network initialization.
+
+    Args:
+        shape (int): Dimensions of the tensor.
+
+    Returns:
+        minitorch.Parameter: A parameter initialized with random values.
+
+    """
     r = 0.1 * (minitorch.rand(shape, backend=BACKEND) - 0.5)
     return minitorch.Parameter(r)
 
 
 class Linear(minitorch.Module):
-    def __init__(self, in_size, out_size):
+    def __init__(self, in_size: int, out_size: int):
+        """Initializes the linear transformation module with weights and biases."""
         super().__init__()
         self.weights = RParam(in_size, out_size)
         self.bias = RParam(out_size)
         self.out_size = out_size
 
-    def forward(self, x):
+    def forward(self, x: minitorch.Tensor) -> minitorch.Tensor:
+        """Applies a linear transformation to the input data."""
         batch, in_size = x.shape
         return (
             x.view(batch, in_size) @ self.weights.value.view(in_size, self.out_size)
@@ -35,20 +50,21 @@ class Linear(minitorch.Module):
 
 
 class Conv2d(minitorch.Module):
-    def __init__(self, in_channels, out_channels, kh, kw):
+    def __init__(self, in_channels: int, out_channels: int, kh: int, kw: int):
+        """Initializes the convolutional layer with filters and biases."""
         super().__init__()
         self.weights = RParam(out_channels, in_channels, kh, kw)
         self.bias = RParam(out_channels, 1, 1)
 
-    def forward(self, input):
+    def forward(self, input: minitorch.Tensor) -> minitorch.Tensor:
+        """Applies a 2D convolution to the input tensor."""
         # TODO: Implement for Task 4.5.
         out = minitorch.conv2d(input, self.weights.value) + self.bias.value
         return out
 
 
 class Network(minitorch.Module):
-    """
-    Implement a CNN for MNist classification based on LeNet.
+    """Implement a CNN for MNist classification based on LeNet.
 
     This model should implement the following procedure:
 
@@ -62,6 +78,7 @@ class Network(minitorch.Module):
     """
 
     def __init__(self):
+        """Initializes a CNN for MNIST classification based on a simplified LeNet architecture."""
         super().__init__()
 
         # For vis
@@ -74,7 +91,8 @@ class Network(minitorch.Module):
         self.linear1 = Linear(392, 64)
         self.linear2 = Linear(64, C)
 
-    def forward(self, x):
+    def forward(self, x: minitorch.Tensor) -> minitorch.Tensor:
+        """Processes input through the network and applies logsoftmax over the output class dimension."""
         # TODO: Implement for Task 4.5.
         x = self.conv1(x).relu()
         self.mid = x
@@ -88,8 +106,8 @@ class Network(minitorch.Module):
         return x
 
 
-
-def make_mnist(start, stop):
+def make_mnist(start: int, stop: int) -> tuple[list[list[list[float]]], list[list[float]]]:
+    """Generates MNIST training and validation datasets from raw images and labels."""
     ys = []
     X = []
     for i in range(start, stop):
@@ -101,20 +119,38 @@ def make_mnist(start, stop):
     return X, ys
 
 
-def default_log_fn(epoch, total_loss, correct, total, losses, model):
+def default_log_fn(epoch: int, total_loss: float, correct: int, total: int, losses: list[float], model: minitorch.Module) -> None:
+    """Logs the training progress.
+
+    Args:
+        epoch (int): Current epoch number.
+        total_loss (float): Total loss for the current epoch.
+        correct (int): Number of correct predictions.
+        total (int): Total number of predictions.
+        losses (List[float]): List of loss values.
+        model (minitorch.Module): The model being trained.
+
+    """
     print(f"Epoch {epoch} loss {total_loss} valid acc {correct}/{total}")
 
 
 class ImageTrain:
     def __init__(self):
+        """Initializes the image training class with a network model."""
         self.model = Network()
 
-    def run_one(self, x):
-        return self.model.forward(minitorch.tensor([x], backend=BACKEND))
+    def run_one(self, x: list[list[float]]) -> minitorch.Tensor:
+        """Runs a forward pass with one image through the model."""
 
     def train(
-        self, data_train, data_val, learning_rate, max_epochs=500, log_fn=default_log_fn
-    ):
+        self,
+        data_train: tuple[list[list[list[float]]], list[list[float]]],
+        data_val: tuple[list[list[list[float]]], list[list[float]]],
+        learning_rate: float,
+        max_epochs: int = 500,
+        log_fn: callable = default_log_fn
+    ) -> None:
+        """Trains the model using provided training and validation datasets."""
         (X_train, y_train) = data_train
         (X_val, y_val) = data_val
         self.model = Network()
@@ -185,4 +221,4 @@ class ImageTrain:
 
 if __name__ == "__main__":
     data_train, data_val = (make_mnist(0, 5000), make_mnist(10000, 10500))
-    ImageTrain().train(data_train, data_val, learning_rate=0.01)
+    ImageTrain().train(data_train, data_val, learning_rate=0.01) #0.01 initially
