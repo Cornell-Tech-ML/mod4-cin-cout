@@ -62,8 +62,6 @@ def test_max(t: Tensor) -> None:
 @given(tensors(shape=(1, 1, 4, 4)))
 def test_max_pool(t: Tensor) -> None:
     out = minitorch.maxpool2d(t, (2, 2))
-    print(out)
-    print(t)
     assert_close(
         out[0, 0, 0, 0], max([t[0, 0, i, j] for i in range(2) for j in range(2)])
     )
