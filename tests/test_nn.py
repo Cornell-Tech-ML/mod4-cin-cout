@@ -37,10 +37,7 @@ def test_max(t: Tensor) -> None:
         for j in range(t.shape[1]):
             expected_max = max([t[i, j, k] for k in range(t.shape[2])])
             assert_close(out[i, j, 0], expected_max)
-
-
-@given(tensors(shape=(2, 3, 4)))
-def test_max_backward(t: Tensor) -> None:
+            
     t.requires_grad_(True)
     t.zero_grad_()
     out = minitorch.max(t, dim=2)
