@@ -112,21 +112,51 @@ class Scalar:
         return self.history is not None and self.history.last_fn is None
 
     def is_constant(self) -> bool:
+        """Check if the variable is constant, meaning it does not have a computation history.
+
+        Returns
+        -------
+        bool
+            True if the variable is constant, False otherwise.
+
+        """
         return self.history is None
 
     @property
     def parents(self) -> Iterable[Variable]:
-        """Get the variables used to create this one."""
+        """Get the parent variables that were used in the operation that created this variable.
+
+        Returns
+        -------
+        Iterable[Variable]
+            The parent variables involved in the computation history of this variable.
+
+        """
         assert self.history is not None
         return self.history.inputs
 
     def chain_rule(self, d_output: Any) -> Iterable[Tuple[Variable, Any]]:
+        """Apply the chain rule to compute the gradients with respect to each input variable.
+
+        Parameters
+        ----------
+        d_output : Any
+            The derivative of the output with respect to the final function output.
+
+        Returns
+        -------
+        Iterable[Tuple[Variable, Any]]
+            A collection of input variables and their corresponding local derivatives.
+
+        """
         h = self.history
         assert h is not None
         assert h.last_fn is not None
         assert h.ctx is not None
 
-        raise NotImplementedError("Need to include this file from past assignment.")
+        # TODO: Implement for Task 1.3.
+        x = h.last_fn._backward(h.ctx, d_output)
+        return list(zip(h.inputs, x))
 
     def backward(self, d_output: Optional[float] = None) -> None:
         """Calls autodiff to fill in the derivatives for the history of this object.
@@ -141,17 +171,87 @@ class Scalar:
             d_output = 1.0
         backpropagate(self, d_output)
 
-    raise NotImplementedError("Need to include this file from past assignment.")
+    # TODO: Implement for Task 1.2.
+
+    def __add__(self, b: ScalarLike) -> Scalar:
+        return Add.apply(self, b)
+
+    def __sub__(self, b: ScalarLike) -> Scalar:
+        return Add.apply(self, -b)
+
+    def __neg__(self) -> Scalar:
+        return Neg.apply(self)
+
+    def __lt__(self, b: ScalarLike) -> Scalar:
+        return LT.apply(self, b)
+
+    def __gt__(self, b: ScalarLike) -> Scalar:
+        return LT.apply(b, self)
+
+    def __eq__(self, b: ScalarLike) -> Scalar:
+        return EQ.apply(b, self)
+
+    def exp(self) -> Scalar:
+        """Compute the exponential of the scalar value.
+
+        Returns
+        -------
+        Scalar
+            The exponential of the scalar value.
+
+        """
+        return Exp.apply(self)
+
+    def log(self) -> Scalar:
+        """Compute the natural logarithm of the scalar value.
+
+        Returns
+        -------
+        Scalar
+            The natural logarithm of the scalar value.
+
+        """
+        return Log.apply(self)
+
+    def sigmoid(self) -> Scalar:
+        """Compute the sigmoid function of the scalar value.
+
+        Returns
+        -------
+        Scalar
+            The sigmoid of the scalar value.
+
+        """
+        return Sigmoid.apply(self)
+
+    def relu(self) -> Scalar:
+        """Apply the ReLU activation function to the scalar value.
+
+        Returns
+        -------
+        Scalar
+            The ReLU of the scalar value (max(0, x)).
+
+        """
+        return ReLU.apply(self)
+
+    def __hash__(self):
+        return hash(self.unique_id)
 
 
 def derivative_check(f: Any, *scalars: Scalar) -> None:
-    """Checks that autodiff works on a python function.
-    Asserts False if derivative is incorrect.
+    """Check that autodiff works on a Python function and assert if the derivative is incorrect.
 
     Parameters
     ----------
-        f : function from n-scalars to 1-scalar.
-        *scalars  : n input scalar values.
+    f : Callable
+        A function that takes n scalar values and returns a scalar output.
+    *scalars : Scalar
+        Input scalar values for which the derivative check is performed.
+
+    Returns
+    -------
+    None
 
     """
     out = f(*scalars)
