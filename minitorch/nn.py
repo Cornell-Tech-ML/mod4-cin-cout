@@ -4,7 +4,7 @@ from . import operators
 from .autodiff import Context
 from .fast_ops import FastOps
 from .tensor import Tensor
-from .tensor_functions import Function, rand, tensor
+from .tensor_functions import Function, rand
 
 
 # List of functions in this file:
@@ -139,7 +139,7 @@ def max(t: Tensor, dim: int) -> Tensor:
         Tensor containing the maximum values along the specified dimension.
 
     """
-    return Max.apply(t, tensor(dim))
+    return Max.apply(t, t._ensure_tensor(dim))
 
 
 def argmax(t: Tensor, dim: int) -> Tensor:
